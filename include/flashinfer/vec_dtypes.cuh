@@ -269,7 +269,11 @@ struct vec_cast<nv_bfloat16, __nv_fp8_e4m3> {
       dst[1] = nv_bfloat16(src[1]);
     } else {
       static_assert(vec_size % 4 == 0, "vec_size must be a multiple of 4");
+#ifdef FLASHINFER_HARDWARE_FP8_CONVERSION_ENABLED
 #pragma unroll
+#else
+#pragma unroll 1
+#endif
       for (uint32_t i = 0; i < vec_size / 4; ++i) {
         fast_dequant_f8f16x4<__nv_fp8_e4m3, nv_bfloat16>((uint32_t*)&src[i * 4],
                                                          (uint2*)&dst[i * 4]);
@@ -289,7 +293,11 @@ struct vec_cast<nv_bfloat16, __nv_fp8_e5m2> {
       dst[1] = nv_bfloat16(src[1]);
     } else {
       static_assert(vec_size % 4 == 0, "vec_size must be a multiple of 4");
+#ifdef FLASHINFER_HARDWARE_FP8_CONVERSION_ENABLED
 #pragma unroll
+#else
+#pragma unroll 1
+#endif
       for (uint32_t i = 0; i < vec_size / 4; ++i) {
         fast_dequant_f8f16x4<__nv_fp8_e5m2, nv_bfloat16>((uint32_t*)&src[i * 4],
                                                          (uint2*)&dst[i * 4]);
@@ -315,7 +323,7 @@ struct vec_cast<__nv_fp8_e4m3, half> {
       }
     }
 #else
-#pragma unroll
+#pragma unroll 1
     for (size_t i = 0; i < vec_size; ++i) {
       dst[i] = __nv_fp8_e4m3(src[i]);
     }
@@ -340,7 +348,7 @@ struct vec_cast<__nv_fp8_e5m2, half> {
       }
     }
 #else
-#pragma unroll
+#pragma unroll 1
     for (size_t i = 0; i < vec_size; ++i) {
       dst[i] = __nv_fp8_e5m2(src[i]);
     }
@@ -372,7 +380,7 @@ struct vec_cast<half, __nv_fp8_e4m3> {
       dst[1] = half(src[1]);
     } else {
       static_assert(vec_size % 4 == 0, "vec_size must be a multiple of 4");
-#pragma unroll
+#pragma unroll 1
       for (uint32_t i = 0; i < vec_size / 4; ++i) {
         fast_dequant_f8f16x4<__nv_fp8_e4m3, half>((uint32_t*)&src[i * 4], (uint2*)&dst[i * 4]);
       }
@@ -405,7 +413,7 @@ struct vec_cast<half, __nv_fp8_e5m2> {
       dst[1] = half(src[1]);
     } else {
       static_assert(vec_size % 4 == 0, "vec_size must be a multiple of 4");
-#pragma unroll
+#pragma unroll 1
       for (uint32_t i = 0; i < vec_size / 4; ++i) {
         fast_dequant_f8f16x4<__nv_fp8_e5m2, half>((uint32_t*)&src[i * 4], (uint2*)&dst[i * 4]);
       }
