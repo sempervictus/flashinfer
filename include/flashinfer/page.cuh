@@ -56,6 +56,15 @@ struct paged_kv_t {
   // [batch_size] The offset of the last page for each request in the batch
   IdType* last_page_len;
   // [batch_size] The start position of each request in the batch.
+
+  // NVFP4 (4-bit) KV-cache scale-factor pages (P-04). nullptr for 16/8-bit KV.
+  // Layout mirrors the data pages but with head_dim/16 SF bytes per (page,token,head):
+  //   k_sf_data/v_sf_data: [max_num_pages, page_size, num_heads, head_dim/16] (UE4M3).
+  uint8_t* k_sf_data;
+  uint8_t* v_sf_data;
+  uint32_t sf_stride_page;  // = num_heads * (head_dim/16) * page_size
+  uint32_t sf_stride_n;     // = num_heads * (head_dim/16)
+  uint32_t sf_stride_h;     // = head_dim/16
   IdType* rope_pos_offset;
 
   /*!
@@ -74,7 +83,12 @@ struct paged_kv_t {
         indices(nullptr),
         indptr(nullptr),
         last_page_len(nullptr),
-        rope_pos_offset(nullptr) {}
+        rope_pos_offset(nullptr),
+        k_sf_data(nullptr),
+        v_sf_data(nullptr),
+        sf_stride_page(0),
+        sf_stride_n(0),
+        sf_stride_h(0) {}
 
   /*!
    * \brief Construct a paged key-value cache
@@ -142,6 +156,17 @@ struct paged_kv_t {
     this->v_data = v_data;
     stride_n = layout == QKVLayout::kHND ? kv_strides[2] : kv_strides[1];
     stride_h = layout == QKVLayout::kHND ? kv_strides[1] : kv_strides[2];
+  }
+
+  // P-04: set the NVFP4 (4-bit) scale-factor pages. Call after construction when
+  // the KV cache is NVFP4 (DType=uint8_t packed E2M1 + separate UE4M3 SF pages).
+  __host__ __device__ __forceinline__ void set_nvfp4_sf(
+      uint8_t* k_sf, uint8_t* v_sf, uint32_t sf_page, uint32_t sf_n, uint32_t sf_h) {
+    k_sf_data = k_sf;
+    v_sf_data = v_sf;
+    sf_stride_page = sf_page;
+    sf_stride_n = sf_n;
+    sf_stride_h = sf_h;
   }
 
   __host__ __device__ __forceinline__ uint32_t get_length(uint32_t batch_idx) const {

@@ -161,6 +161,9 @@ struct BatchPrefillRaggedParams {
   uint32_t v_sf_stride_page;
   uint32_t v_sf_stride_n;
   uint32_t v_sf_stride_h;
+  // P-04: NVFP4 (4-bit) KV-cache scale-factor base pointers (nullptr for 16/8-bit KV).
+  uint8_t* maybe_k_cache_sf;
+  uint8_t* maybe_v_cache_sf;
   int32_t window_left;
   float logits_soft_cap;
   float sm_scale;
@@ -211,6 +214,8 @@ struct BatchPrefillRaggedParams {
         v_sf_stride_page(0),
         v_sf_stride_n(0),
         v_sf_stride_h(0),
+        maybe_k_cache_sf(nullptr),
+        maybe_v_cache_sf(nullptr),
         window_left(0),
         logits_soft_cap(0.0f),
         sm_scale(0.0f),
@@ -268,6 +273,8 @@ struct BatchPrefillRaggedParams {
         v_sf_stride_page(0),
         v_sf_stride_n(0),
         v_sf_stride_h(0),
+        maybe_k_cache_sf(nullptr),
+        maybe_v_cache_sf(nullptr),
         window_left(window_left),
         logits_soft_cap(logits_soft_cap),
         sm_scale(sm_scale),
@@ -324,6 +331,9 @@ struct BatchPrefillPagedParams {
   uint32_t v_sf_stride_page;
   uint32_t v_sf_stride_n;
   uint32_t v_sf_stride_h;
+  // P-04: NVFP4 (4-bit) KV-cache scale-factor base pointers (nullptr for 16/8-bit KV).
+  uint8_t* maybe_k_cache_sf;
+  uint8_t* maybe_v_cache_sf;
   int32_t window_left;
   float logits_soft_cap;
   float sm_scale;
@@ -366,6 +376,8 @@ struct BatchPrefillPagedParams {
         v_sf_stride_page(0),
         v_sf_stride_n(0),
         v_sf_stride_h(0),
+        maybe_k_cache_sf(nullptr),
+        maybe_v_cache_sf(nullptr),
         window_left(0),
         logits_soft_cap(0.0f),
         sm_scale(0.0f),
@@ -413,6 +425,8 @@ struct BatchPrefillPagedParams {
         v_sf_stride_page(0),
         v_sf_stride_n(0),
         v_sf_stride_h(0),
+        maybe_k_cache_sf(nullptr),
+        maybe_v_cache_sf(nullptr),
         window_left(window_left),
         logits_soft_cap(logits_soft_cap),
         sm_scale(sm_scale),
